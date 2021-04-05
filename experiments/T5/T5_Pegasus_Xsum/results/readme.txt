@@ -52,3 +52,20 @@ two_answer_best_context_concat.xlsx:
 	'google/pegasus-xsum'
 	https://huggingface.co/google/pegasus-xsum
 	
+five_answer_best_context_concat.xlsx:
+	
+	Description:
+	Contains results of multi_question test where the second and five highest scored spans
+	are concatenated with the highest scored context and sent to the T5 model. You
+	can obtain results by running muilti_question_pegasus_summ.py with line 45 as follows:
+	
+	answer, time_dict, context = res.five_answer_best_context_concat(d[0])
+	
+	Confidence scoring Model:
+	"deepset/roberta-base-squad2"
+	https://huggingface.co/deepset/roberta-base-squad2
+	
+	Text2Text model:
+	'google/pegasus-xsum'
+	https://huggingface.co/google/pegasus-xsum
+	
