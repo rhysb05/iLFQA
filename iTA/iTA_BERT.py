@@ -36,7 +36,7 @@ class Loading_Model():
         text_books = ["dataset.txt","Classical-Sociology.txt","Direct_Energy_Conversion.txt","History_of_International_Relations.txt","Human-Behavior.txt"]
         # text_books = ["dataset.txt"]
         
-        # Prototype code ***********************************************************************************
+        
         
         # load the zero-shot classifier from hugging face
         classifier_name = "zero-shot-classification"
@@ -59,9 +59,7 @@ class Loading_Model():
         
         }
        
-        # End prototype code *******************************************************************************
-        
-        # original code ************************************************************************************
+      
         args_docs = []
         for text_book in text_books:
             text_book = doc_file_path + text_book
@@ -91,17 +89,7 @@ class Loading_Model():
         print("\nlength of documents:\n")
         print(len(self.documents))
         
-        # end original code **********************************************************************************
-
-        #q = input("Enter the Question: ")
-        # Tokenize the input, the models expects data to be tokenized using `NltkAndPunctTokenizer`
-        # Note the model expects case-sensitive input
-        
-        # Now list of document->paragraph->sentence->word
-        
-
-        # Now group the document into paragraphs, this returns `ExtractedParagraph` objects
-        # that additionally remember the start/end token of the paragraph within the source document
+       
         
         # splitter = PreserveParagraphs() # Uncomment to use the natural paragraph grouping
         self.bart_tokenizer = AutoTokenizer.from_pretrained('yjernite/bart_eli5')
@@ -268,21 +256,10 @@ class Loading_Model():
         # We want to get the list in descending order from best confidence score to worst.
         question_answer_dict_list_sorted = sorted(question_answer_dict_list, key = lambda i: i['score'], reverse=True)
         
-        # print("\nSorted List:\n")
-        # for scoredQuestion in question_answer_dict_list_sorted:
-        #     print("\n{}\n".format(scoredQuestion))
-        # end for score in scoreList
-        
 
         #top_para = q + " --T-- " + paras[best_para]
         top_para = "question: " + q + " context: " + question_answer_dict_list_sorted[0]['context'] + question_answer_dict_list_sorted[1]['context']
         
-        # print("\nAnswer by TriviQA:\n")
-        # #print("Paragraph Order:" + str(best_paras))
-        # print("Best Paragraph: " + str(best_para))
-        # #print("Best span: " + str(best_spans[best_para]))
-        # print("Answer text: " + " ".join(context[best_para][best_spans[best_para][0]:best_spans[best_para][1]+1]))
-        # #print("Confidence: " + str(conf[best_para]))
         top_file = open("/home/bdlabucdenver/Top_para.txt",'w')
         top_file.write(top_para)
         top_file.close()
@@ -353,12 +330,6 @@ class Loading_Model():
         
         # *********************************************** Concatenated answers end ***************************************************************************
 
-        # print("\nAnswer by TriviQA:\n")
-        # #print("Paragraph Order:" + str(best_paras))
-        # print("Best Paragraph: " + str(best_para))
-        # #print("Best span: " + str(best_spans[best_para]))
-        # print("Answer text: " + " ".join(context[best_para][best_spans[best_para][0]:best_spans[best_para][1]+1]))
-        # #print("Confidence: " + str(conf[best_para]))
         top_file = open("/home/bdlabucdenver/Top_para.txt",'w')
         top_file.write(top_para)
         top_file.close()
@@ -469,12 +440,6 @@ class Loading_Model():
         
         # *********************************************** Concatenated answers end ***************************************************************************
 
-        # print("\nAnswer by TriviQA:\n")
-        # #print("Paragraph Order:" + str(best_paras))
-        # print("Best Paragraph: " + str(best_para))
-        # #print("Best span: " + str(best_spans[best_para]))
-        # print("Answer text: " + " ".join(context[best_para][best_spans[best_para][0]:best_spans[best_para][1]+1]))
-        # #print("Confidence: " + str(conf[best_para]))
         top_file = open("/home/bdlabucdenver/Top_para.txt",'w')
         top_file.write(top_para)
         top_file.close()

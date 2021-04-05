@@ -4,7 +4,7 @@ from docqa.data_processing.text_utils import NltkAndPunctTokenizer, NltkPlusStop
 from docqa.data_processing.document_splitter import MergeParagraphs
 import re
 from os.path import isfile
-from iTA_pegasus_summ import Loading_Model
+from iTA import Loading_Model
 import time
 import pandas as pd
 import numpy as np
@@ -39,19 +39,19 @@ def perplexity(testset, model):
 data_frame = pd.read_excel("/home/bdlabucdenver/data/QA_rephrase.xlsx")
 np_data = np.array(data_frame)
 records_count = 0
-final_data = np.array([['Question', 'Answer', 'Context', 'G_answer', 'zero_shot_time', 'tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex']])
+final_data = np.array([['Question', 'Answer','Time', 'Bleu', 'Perplex', 'G_answer']])
 for d in np_data:
     start = time.time()
-    answer, time_dict, context = res.four_best_context_concat(d[0])
+    answer = res.get_response(d[0])
     end = time.time()
 
     BLEU = bleu_score.sentence_bleu(d[1], answer)
     tokens = nltk.word_tokenize(d[1])
     model = unigram(tokens)
     perplex = perplexity(answer, model)
-    all_values = [d[0], d[1], context, answer, time_dict['zero_shot_time'], time_dict['tf_idf'], time_dict['confidence_scores'], time_dict['answer'], BLEU, perplex]
+    all_values = [d[0], d[1], end-start, BLEU, perplex, answer]
     final_data = np.append(final_data, [all_values], axis = 0)
     records_count += 1
     print("Done {}\n".format(records_count))
 df = pd.DataFrame(final_data)
-df.to_excel("/home/bdlabucdenver/data/four_best_context_concat.xlsx", index = False, header= False)
+df.to_excel("/home/bdlabucdenver/data/Results_rephrase.xlsx", index = False, header= False)

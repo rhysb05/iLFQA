@@ -1,28 +1,12 @@
 
-Results_rephrased:
+QA.xlsx:
 	
-	Description:
-	Contains results of multi_question test from original implementation of the project found in the files
-	iTA.py, multi_question.py, and test.py, But using the questions that are rephrased from the file
-	QA_rephrase.xlsx.
 	
-	Confidence scoring Model:
-	LSTM
-	'*need link reference*'
+	Contains questions for submission to iTA that were used in experimentation along with the "gold answer".
 	
-	Text2Text model:
-	https://huggingface.co/yjernite/bart_eli5
 	
-Results:
+QA_rephrase.xlsx:
 	
-	Description:
-	Contains results of multi_question test from original implementation of the project found in the files
-	iTA.py, multi_question.py, and test.py, Using questions from file 
-	QA.xlsx.
+	Contains questions for submission to iTA that were used in experimentation along with the "gold answer",
+	however these questions are paraphrased from QA.xlsx.
 	
-	Confidence scoring Model:
-	LSTM
-	'*need link reference*'
-	
-	Text2Text model:
-	https://huggingface.co/yjernite/bart_eli5

@@ -39,7 +39,7 @@ def perplexity(testset, model):
 data_frame = pd.read_excel("/home/bdlabucdenver/data/QA_rephrase.xlsx")
 np_data = np.array(data_frame)
 records_count = 0
-final_data = np.array([['Question', 'Answer','tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex', 'G_answer']])
+final_data = np.array([['Question', 'Answer', 'zero_shot_time', 'tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex', 'G_answer']])
 for d in np_data:
     start = time.time()
     answer, time_dict = res.get_response_BERT_answer_para_concat(d[0])
@@ -50,7 +50,7 @@ for d in np_data:
     tokens = nltk.word_tokenize(d[1])
     model = unigram(tokens)
     perplex = perplexity(answer, model)
-    all_values = [d[0], d[1], time_dict['tf_idf'], time_dict['confidence_scores'], time_dict['answer'], BLEU, perplex, answer]
+    all_values = [d[0], d[1], time_dict['zero_shot_time'],time_dict['tf_idf'], time_dict['confidence_scores'], time_dict['answer'], BLEU, perplex, answer]
     final_data = np.append(final_data, [all_values], axis = 0)
     records_count += 1
     print("Done {}\n".format(records_count))
