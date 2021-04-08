@@ -36,22 +36,23 @@ def perplexity(testset, model):
     perplexity = pow(perplexity, 1/float(N)) 
     return perplexity
 
-data_frame = pd.read_excel("/home/bdlabucdenver/data/QA_rephrase.xlsx")
+data_frame = pd.read_excel("/home/bdlabucdenver/data/QA.xlsx")
 np_data = np.array(data_frame)
 records_count = 0
-final_data = np.array([['Question', 'Answer','Time', 'Bleu', 'Perplex', 'G_answer']])
+final_data = np.array([['Question', 'Answer', 'Context', 'G_answer', 'tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex']])
 for d in np_data:
     start = time.time()
-    answer = res.get_response(d[0])
+    answer, time_dict, context = res.get_response(d[0])
+    print(answer)
     end = time.time()
 
     BLEU = bleu_score.sentence_bleu(d[1], answer)
     tokens = nltk.word_tokenize(d[1])
     model = unigram(tokens)
     perplex = perplexity(answer, model)
-    all_values = [d[0], d[1], end-start, BLEU, perplex, answer]
+    all_values = [d[0], d[1], context, answer, time_dict['tf_idf'], time_dict['confidence_scores'], time_dict['answer'], BLEU, perplex]
     final_data = np.append(final_data, [all_values], axis = 0)
     records_count += 1
     print("Done {}\n".format(records_count))
 df = pd.DataFrame(final_data)
-df.to_excel("/home/bdlabucdenver/data/Results_rephrase.xlsx", index = False, header= False)
+df.to_excel("/home/bdlabucdenver/data/get_response.xlsx", index = False, header= False)

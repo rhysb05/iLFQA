@@ -40,39 +40,18 @@ class Loading_Model():
             with open(doc, "r") as f:
                 documents.append(f.read())
         print("Loaded %d documents" % len(documents))
-        
-        print("\nPrinting documents before tokenize_paragraph:\n")
-        for doc in documents:
-            print(doc)
-            print("\n")
+       
         
         # Split documents into lists of paragraphs
         documents = [re.split("\s*\n\s*", doc) for doc in documents]
-        
-        print("\nPrinting documents before tokenize_paragraph:\n")
-        for doc in documents:
-            print(doc)
-            print("\n")
             
 
         self.tokenizer = NltkAndPunctTokenizer()
         documents = [[self.tokenizer.tokenize_paragraph(p) for p in doc] for doc in documents]
-        
-        print("\nPrinting documents after tokenize_paragraph:\n")
-        for doc in documents:
-            print(doc)
-            print("\n")
             
         splitter = MergeParagraphs(400)
         self.documents = [splitter.split(doc) for doc in documents]
         
-        print("\nPrinting documents after splitter.split:\n")
-        for doc in documents:
-            print(doc)
-            print("\n")
-        
-        print("\nlength of documents:\n")
-        print(len(self.documents))
         
         #q = input("Enter the Question: ")
         # Tokenize the input, the models expects data to be tokenized using `NltkAndPunctTokenizer`
@@ -90,6 +69,8 @@ class Loading_Model():
 
     def get_response(self, q):
         start = time.time()
+        
+        tf_start_time = time.time()
         question = self.tokenizer.tokenize_paragraph_flat(q)  # List of words
         # Now select the top paragraphs using a `ParagraphFilter`
         if len(self.documents) == 1:
@@ -100,10 +81,14 @@ class Loading_Model():
             # Use a linear classifier to select top paragraphs among all the documents
             selector = ShallowOpenWebRanker(n_to_select=10)
             context = selector.prune(question, flatten_iterable(self.documents))
+        tf_end_time = time.time()
+        tf_idf_time = tf_end_time - tf_start_time
 
         
         paras = [" ".join(flatten_iterable(x.text)) for x in context]
-
+        
+        
+        confidence_start = time.time()
         print("\nSelected %d paragraphs" % len(context))
         if self.model.preprocessor is not None:
             # Models are allowed to define an additional pre-processing step
@@ -151,14 +136,19 @@ class Loading_Model():
         best_para = np.argmax(conf)  # We get output for each paragraph, select the most-confident one to print
 
         best_paras = np.argsort(conf)
+        confidence_end = time.time()
+        confidence_score_time = confidence_end - confidence_start
         end = time.time()
         print(end- start)
 
         #top_para = q + " --T-- " + paras[best_paras[4]] + " <D> " + paras[best_paras[3]] + " <D> " + paras[best_paras[2]]
         
+        
         #top_para = q + " --T-- " + paras[best_para]
         top_para = "question: " + q + " context: " + paras[best_paras[4]] + paras[best_paras[3]]
-
+        context = paras[best_paras[4]] + paras[best_paras[3]]
+        
+        answer_start = time.time()
         print("\nAnswer by TriviQA:\n")
         #print("Paragraph Order:" + str(best_paras))
         print("Best Paragraph: " + str(best_para))
@@ -170,9 +160,11 @@ class Loading_Model():
         top_file.close()
         answer = qa_s2s_generate(top_para, self.bart_model, self.bart_tokenizer,num_answers=1,num_beams=8, min_len=96, max_len=256, max_input_length=1024, device='cuda:0')[0]
         tf.get_variable_scope().reuse_variables()
-        return answer
-
-    
-
-
-
+        answer_end = time.time()
+        total_answer_time = answer_end - answer_start
+        
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time}
+        
+        return answer, timeDict, context 
+        
+        

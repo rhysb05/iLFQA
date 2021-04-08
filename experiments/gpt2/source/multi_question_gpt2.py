@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from nltk.translate import bleu_score
 import collections, nltk
+import xlsxwriter
 
 res = Loading_Model()
 
@@ -39,10 +40,10 @@ def perplexity(testset, model):
 data_frame = pd.read_excel("/home/bdlabucdenver/data/QA_rephrase.xlsx")
 np_data = np.array(data_frame)
 records_count = 0
-final_data = np.array([['Question', 'Answer','Time', 'Bleu', 'Perplex', 'G_answer']])
+final_data = np.array([['Question', 'Answer', 'Context', 'G_answer', 'zero_shot_time', 'tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex']])
 for d in np_data:
     start = time.time()
-    answer = res.get_response_BERT_two_answer_context(d[0])
+    answer, timeDict, context = res.get_response_BERT_two_answer_context(d[0])
     answer = answer[0]['generated_text']
     print(answer)
     end = time.time()
@@ -51,9 +52,9 @@ for d in np_data:
     tokens = nltk.word_tokenize(d[1])
     model = unigram(tokens)
     perplex = perplexity(answer, model)
-    all_values = [d[0], d[1], end-start, BLEU, perplex, answer]
+    all_values = [d[0], d[1], context, answer, time_dict['zero_shot_time'], time_dict['tf_idf'], time_dict['confidence_scores'], time_dict['answer'], BLEU, perplex]
     final_data = np.append(final_data, [all_values], axis = 0)
     records_count += 1
     print("Done {}\n".format(records_count))
 df = pd.DataFrame(final_data)
-df.to_excel("/home/bdlabucdenver/data/QA_Results_gpt2_2Answer_Concat_no_seed.xlsx", index = False, header= False)
+df.to_excel("/home/bdlabucdenver/data/get_response_BERT_two_answer_context.xlsx", index = False, header= False, engine='xlsxwriter')
