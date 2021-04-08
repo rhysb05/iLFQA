@@ -36,7 +36,7 @@ def perplexity(testset, model):
     perplexity = pow(perplexity, 1/float(N)) 
     return perplexity
 
-data_frame = pd.read_excel("/home/bdlabucdenver/data/QA.xlsx")
+data_frame = pd.read_excel("/home/bdlabucdenver/data/QA_rephrase.xlsx")
 np_data = np.array(data_frame)
 records_count = 0
 final_data = np.array([['Question', 'Answer', 'Context', 'G_answer', 'tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex']])
