@@ -43,7 +43,7 @@ records_count = 0
 final_data = np.array([['Question', 'Answer', 'Context', 'G_answer', 'zero_shot_time', 'tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex']])
 for d in np_data:
     start = time.time()
-    answer, timeDict, context = res.get_response_BERT_two_answer_context(d[0])
+    answer, time_dict, context = res.five_answer_best_context_concat(d[0])
     answer = answer[0]['generated_text']
     print(answer)
     end = time.time()
@@ -57,4 +57,4 @@ for d in np_data:
     records_count += 1
     print("Done {}\n".format(records_count))
 df = pd.DataFrame(final_data)
-df.to_excel("/home/bdlabucdenver/data/get_response_BERT_two_answer_context.xlsx", index = False, header= False, engine='xlsxwriter')
+df.to_excel("/home/bdlabucdenver/data/five_answer_best_context_concat.xlsx", index = False, header= False, engine='xlsxwriter')

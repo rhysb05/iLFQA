@@ -75,6 +75,7 @@ class Loading_Model():
         documents = [[self.tokenizer.tokenize_paragraph(p) for p in doc] for doc in documents]
         splitter = MergeParagraphs(400)
         self.documents = [splitter.split(doc) for doc in documents]
+        self.text_books = text_books
 
         #q = input("Enter the Question: ")
         # Tokenize the input, the models expects data to be tokenized using `NltkAndPunctTokenizer`
@@ -95,9 +96,44 @@ class Loading_Model():
         model_name = "deepset/roberta-base-squad2"
         self.nlp = pipeline('question-answering', model=model_name, tokenizer=model_name, device=0)
     
-    def get_response_BERT_two_answer_context(self, q):
+    def two_answer_best_context(self, q):
 
         start = time.time()
+        
+        # Classify the question
+        zero_shot_time = time.time()
+        # Use the classifier to classify the question.
+        candidate_labels = list(self.topics.keys())
+        zero_shot_result =  self.zshot_classifier(q, candidate_labels)
+        print("\nzero_shot_results:\n{}".format(zero_shot_result))
+        
+        # Find the index with highest score
+        score_index = 0
+        best_score = {"topic": '', "score": -1}
+        for score in zero_shot_result['scores']:
+            if score > best_score["score"]:
+                best_score["score"] = score
+                best_score["topic"] = zero_shot_result['labels'][score_index]
+            score_index += 1
+        print("\nbest_score:\n{}".format(best_score))
+        
+        # Make a list of only the desired documents
+        topic_texts = self.topics[best_score["topic"]]
+        print("\ntopic_texts:\n{}\n".format(topic_texts))
+        topic_texts_index = [self.text_books.index(text) for text in topic_texts]
+        print("\ntopic_texts_index:\n{}\n".format(topic_texts_index))
+        print("\nself.text_books:\n{}\n".format(self.text_books))
+        selected_texts = []
+        for index in topic_texts_index:
+            index_number = index
+            print("\nindex_number:{}\n".format(index_number))
+            selected_texts.append(self.documents[index_number])
+        # print("\nlength of selected_texts:\n{}\n".format(len(selected_texts))
+        
+        end_zero_shot_time = time.time()
+        total_zero_shot_time = end_zero_shot_time - zero_shot_time
+        print("\ntotal_zero_shot_time:{}\n".format(total_zero_shot_time))
+        
         timeForTFIDF = time.time()
         question = self.tokenizer.tokenize_paragraph_flat(q)  # List of words
         # Now select the top paragraphs using a `ParagraphFilter`
@@ -136,18 +172,9 @@ class Loading_Model():
         answer = "No answer yet"
         
         # We will pass the top two answers along with the highest scored context to BART
-        top_para = "question: " + q + " context: " + question_answer_dict_list_sorted[0]['answer'] + ' ' + question_answer_dict_list_sorted[1]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context']
-        context = question_answer_dict_list_sorted[0]['answer'] + ' ' + question_answer_dict_list_sorted[1]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context']
+        top_para = "question: " + q + " context: " + question_answer_dict_list_sorted[1]['answer'] + ' ' + question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context']
+        context = question_answer_dict_list_sorted[1]['answer'] + ' ' + question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context']
         
-        # print("\nAnswer by TriviQA:\n")
-        # #print("Paragraph Order:" + str(best_paras))
-        # print("Best Paragraph: " + str(best_para))
-        # #print("Best span: " + str(best_spans[best_para]))
-        # print("Answer text: " + " ".join(context[best_para][best_spans[best_para][0]:best_spans[best_para][1]+1]))
-        # #print("Confidence: " + str(conf[best_para]))
-        top_file = open("/home/bdlabucdenver/Top_para.txt",'w')
-        top_file.write(top_para)
-        top_file.close()
         
         # Change top_para into a dict for easier access
         top_para = {
@@ -171,8 +198,331 @@ class Loading_Model():
         total_answer_time = endAnswerTime - answerTime
         print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
         
-        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time}
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
         
         return answer, timeDict, context
 
-    # end def get_response_BERT_answer_concat(self, q)
+    # end def two_answer_best_context(self, q)
+    
+    def four_best_context_concat(self, q):
+
+        start = time.time()
+        
+        # Classify the question
+        zero_shot_time = time.time()
+        # Use the classifier to classify the question.
+        candidate_labels = list(self.topics.keys())
+        zero_shot_result =  self.zshot_classifier(q, candidate_labels)
+        print("\nzero_shot_results:\n{}".format(zero_shot_result))
+        
+        # Find the index with highest score
+        score_index = 0
+        best_score = {"topic": '', "score": -1}
+        for score in zero_shot_result['scores']:
+            if score > best_score["score"]:
+                best_score["score"] = score
+                best_score["topic"] = zero_shot_result['labels'][score_index]
+            score_index += 1
+        print("\nbest_score:\n{}".format(best_score))
+        
+        # Make a list of only the desired documents
+        topic_texts = self.topics[best_score["topic"]]
+        print("\ntopic_texts:\n{}\n".format(topic_texts))
+        topic_texts_index = [self.text_books.index(text) for text in topic_texts]
+        print("\ntopic_texts_index:\n{}\n".format(topic_texts_index))
+        print("\nself.text_books:\n{}\n".format(self.text_books))
+        selected_texts = []
+        for index in topic_texts_index:
+            index_number = index
+            print("\nindex_number:{}\n".format(index_number))
+            selected_texts.append(self.documents[index_number])
+        # print("\nlength of selected_texts:\n{}\n".format(len(selected_texts))
+        
+        end_zero_shot_time = time.time()
+        total_zero_shot_time = end_zero_shot_time - zero_shot_time
+        print("\ntotal_zero_shot_time:{}\n".format(total_zero_shot_time))
+        
+        timeForTFIDF = time.time()
+        question = self.tokenizer.tokenize_paragraph_flat(q)  # List of words
+        # Now select the top paragraphs using a `ParagraphFilter`
+        if len(self.documents) == 1:
+            # Use TF-IDF to select top paragraphs from the document
+            selector = TopTfIdf(NltkPlusStopWords(True), n_to_select=5)
+            context = selector.prune(question, self.documents[0])
+        else:
+            # Use a linear classifier to select top paragraphs among all the documents
+            selector = ShallowOpenWebRanker(n_to_select=5)
+            context = selector.prune(question, flatten_iterable(self.documents))
+
+        
+        paras = [" ".join(flatten_iterable(x.text)) for x in context]
+        endTimeForTFIDF = time.time()
+        tf_idf_time = endTimeForTFIDF - timeForTFIDF
+        print('Total time for TFIDF: {}'.format(tf_idf_time))
+       
+        question_answer_dict_list = list()
+
+        for paragraph in paras:
+            question_answer_dict_list.append({'question': q, 'context': paragraph})
+
+        scoreTime = time.time()
+        for question in question_answer_dict_list:
+            response = self.nlp(question)
+            question['score'] = response['score']
+            question['answer'] = response['answer']
+        endScoreTime = time.time()
+        confidence_score_time = endScoreTime - scoreTime
+        print('Total time for scoring: {}'.format(confidence_score_time))
+        
+        # We want to get the list in descending order from best confidence score to worst.
+        question_answer_dict_list_sorted = sorted(question_answer_dict_list, key = lambda i: i['score'], reverse=True)
+        
+        answer = "No answer yet"
+        
+        # We will pass the top two answers along with the highest scored context to BART
+        top_para = "question: " + q + " context: " + question_answer_dict_list_sorted[0]['context'] + ' ' + question_answer_dict_list_sorted[1]['context'] + ' ' + question_answer_dict_list_sorted[2]['context'] + ' ' + question_answer_dict_list_sorted[3]['context']
+        context = question_answer_dict_list_sorted[0]['context'] + ' ' + question_answer_dict_list_sorted[1]['context'] + ' ' + question_answer_dict_list_sorted[2]['context'] + ' ' + question_answer_dict_list_sorted[3]['context']
+        
+        
+        # Change top_para into a dict for easier access
+        top_para = {
+            "question": q,
+            "context": question_answer_dict_list_sorted[0]['context'] + ' ' + question_answer_dict_list_sorted[1]['context'] + ' ' + question_answer_dict_list_sorted[2]['context'] + ' ' + question_answer_dict_list_sorted[3]['context']
+        }
+        
+        print('\ntop_para: \n{}\n'.format(top_para))
+
+        answerTime = time.time()
+        # Generate the inputs for the summary to use
+        inputs = self.bart_tokenizer([top_para['context']], max_length=1024, return_tensors='pt')
+        # Generate summary itself min_length and max_length specify summary length
+        summary_ids = self.bart_model.generate(inputs['input_ids'], num_beams=4, min_length = 30, max_length=100, early_stopping=True)
+        answer = ''
+        for g in summary_ids:
+            answer = answer + self.bart_tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+        print(answer)
+        tf.get_variable_scope().reuse_variables()
+        endAnswerTime = time.time()
+        total_answer_time = endAnswerTime - answerTime
+        print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
+        
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
+        
+        return answer, timeDict, context
+
+    # end def four_best_context_concat(self, q)
+    
+    def five_answer_best_context_concat(self, q):
+
+        start = time.time()
+        
+        # Classify the question
+        zero_shot_time = time.time()
+        # Use the classifier to classify the question.
+        candidate_labels = list(self.topics.keys())
+        zero_shot_result =  self.zshot_classifier(q, candidate_labels)
+        print("\nzero_shot_results:\n{}".format(zero_shot_result))
+        
+        # Find the index with highest score
+        score_index = 0
+        best_score = {"topic": '', "score": -1}
+        for score in zero_shot_result['scores']:
+            if score > best_score["score"]:
+                best_score["score"] = score
+                best_score["topic"] = zero_shot_result['labels'][score_index]
+            score_index += 1
+        print("\nbest_score:\n{}".format(best_score))
+        
+        # Make a list of only the desired documents
+        topic_texts = self.topics[best_score["topic"]]
+        print("\ntopic_texts:\n{}\n".format(topic_texts))
+        topic_texts_index = [self.text_books.index(text) for text in topic_texts]
+        print("\ntopic_texts_index:\n{}\n".format(topic_texts_index))
+        print("\nself.text_books:\n{}\n".format(self.text_books))
+        selected_texts = []
+        for index in topic_texts_index:
+            index_number = index
+            print("\nindex_number:{}\n".format(index_number))
+            selected_texts.append(self.documents[index_number])
+        # print("\nlength of selected_texts:\n{}\n".format(len(selected_texts))
+        
+        end_zero_shot_time = time.time()
+        total_zero_shot_time = end_zero_shot_time - zero_shot_time
+        print("\ntotal_zero_shot_time:{}\n".format(total_zero_shot_time))
+        
+        timeForTFIDF = time.time()
+        question = self.tokenizer.tokenize_paragraph_flat(q)  # List of words
+        # Now select the top paragraphs using a `ParagraphFilter`
+        if len(self.documents) == 1:
+            # Use TF-IDF to select top paragraphs from the document
+            selector = TopTfIdf(NltkPlusStopWords(True), n_to_select=5)
+            context = selector.prune(question, self.documents[0])
+        else:
+            # Use a linear classifier to select top paragraphs among all the documents
+            selector = ShallowOpenWebRanker(n_to_select=5)
+            context = selector.prune(question, flatten_iterable(self.documents))
+
+        
+        paras = [" ".join(flatten_iterable(x.text)) for x in context]
+        endTimeForTFIDF = time.time()
+        tf_idf_time = endTimeForTFIDF - timeForTFIDF
+        print('Total time for TFIDF: {}'.format(tf_idf_time))
+       
+        question_answer_dict_list = list()
+
+        for paragraph in paras:
+            question_answer_dict_list.append({'question': q, 'context': paragraph})
+
+        scoreTime = time.time()
+        for question in question_answer_dict_list:
+            response = self.nlp(question)
+            question['score'] = response['score']
+            question['answer'] = response['answer']
+        endScoreTime = time.time()
+        confidence_score_time = endScoreTime - scoreTime
+        print('Total time for scoring: {}'.format(confidence_score_time))
+        
+        # We want to get the list in descending order from best confidence score to worst.
+        question_answer_dict_list_sorted = sorted(question_answer_dict_list, key = lambda i: i['score'], reverse=True)
+        
+        answer = "No answer yet"
+        
+        # We will pass the top two answers along with the highest scored context to BART
+        top_para = "question: " + q + " context: " + question_answer_dict_list_sorted[1]['answer'] + ' ' + question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[3]['answer'] + ' ' + question_answer_dict_list_sorted[4]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context']
+        context = question_answer_dict_list_sorted[1]['answer'] + ' ' + question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[3]['answer'] + ' ' + question_answer_dict_list_sorted[4]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context']
+        
+        
+        # Change top_para into a dict for easier access
+        top_para = {
+            "question": q,
+            "context": question_answer_dict_list_sorted[1]['answer'] + ' ' + question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[3]['answer'] + ' ' + question_answer_dict_list_sorted[4]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context']
+        }
+        
+        print('\ntop_para: \n{}\n'.format(top_para))
+
+        answerTime = time.time()
+        # Generate the inputs for the summary to use
+        inputs = self.bart_tokenizer([top_para['context']], max_length=1024, return_tensors='pt')
+        # Generate summary itself min_length and max_length specify summary length
+        summary_ids = self.bart_model.generate(inputs['input_ids'], num_beams=4, min_length = 30, max_length=100, early_stopping=True)
+        answer = ''
+        for g in summary_ids:
+            answer = answer + self.bart_tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+        print(answer)
+        tf.get_variable_scope().reuse_variables()
+        endAnswerTime = time.time()
+        total_answer_time = endAnswerTime - answerTime
+        print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
+        
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
+        
+        return answer, timeDict, context
+
+    # end def five_answer_best_context_concat(self, q)
+    
+    def two_answer_two_context_concat(self, q):
+
+        start = time.time()
+        
+        # Classify the question
+        zero_shot_time = time.time()
+        # Use the classifier to classify the question.
+        candidate_labels = list(self.topics.keys())
+        zero_shot_result =  self.zshot_classifier(q, candidate_labels)
+        print("\nzero_shot_results:\n{}".format(zero_shot_result))
+        
+        # Find the index with highest score
+        score_index = 0
+        best_score = {"topic": '', "score": -1}
+        for score in zero_shot_result['scores']:
+            if score > best_score["score"]:
+                best_score["score"] = score
+                best_score["topic"] = zero_shot_result['labels'][score_index]
+            score_index += 1
+        print("\nbest_score:\n{}".format(best_score))
+        
+        # Make a list of only the desired documents
+        topic_texts = self.topics[best_score["topic"]]
+        print("\ntopic_texts:\n{}\n".format(topic_texts))
+        topic_texts_index = [self.text_books.index(text) for text in topic_texts]
+        print("\ntopic_texts_index:\n{}\n".format(topic_texts_index))
+        print("\nself.text_books:\n{}\n".format(self.text_books))
+        selected_texts = []
+        for index in topic_texts_index:
+            index_number = index
+            print("\nindex_number:{}\n".format(index_number))
+            selected_texts.append(self.documents[index_number])
+        # print("\nlength of selected_texts:\n{}\n".format(len(selected_texts))
+        
+        end_zero_shot_time = time.time()
+        total_zero_shot_time = end_zero_shot_time - zero_shot_time
+        print("\ntotal_zero_shot_time:{}\n".format(total_zero_shot_time))
+        
+        timeForTFIDF = time.time()
+        question = self.tokenizer.tokenize_paragraph_flat(q)  # List of words
+        # Now select the top paragraphs using a `ParagraphFilter`
+        if len(self.documents) == 1:
+            # Use TF-IDF to select top paragraphs from the document
+            selector = TopTfIdf(NltkPlusStopWords(True), n_to_select=5)
+            context = selector.prune(question, self.documents[0])
+        else:
+            # Use a linear classifier to select top paragraphs among all the documents
+            selector = ShallowOpenWebRanker(n_to_select=5)
+            context = selector.prune(question, flatten_iterable(self.documents))
+
+        
+        paras = [" ".join(flatten_iterable(x.text)) for x in context]
+        endTimeForTFIDF = time.time()
+        tf_idf_time = endTimeForTFIDF - timeForTFIDF
+        print('Total time for TFIDF: {}'.format(tf_idf_time))
+       
+        question_answer_dict_list = list()
+
+        for paragraph in paras:
+            question_answer_dict_list.append({'question': q, 'context': paragraph})
+
+        scoreTime = time.time()
+        for question in question_answer_dict_list:
+            response = self.nlp(question)
+            question['score'] = response['score']
+            question['answer'] = response['answer']
+        endScoreTime = time.time()
+        confidence_score_time = endScoreTime - scoreTime
+        print('Total time for scoring: {}'.format(confidence_score_time))
+        
+        # We want to get the list in descending order from best confidence score to worst.
+        question_answer_dict_list_sorted = sorted(question_answer_dict_list, key = lambda i: i['score'], reverse=True)
+        answer = "No answer yet"
+        
+        # We will pass the top two answers along with the highest scored context to BART
+        top_para = "question: " + q + " context: " + question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[3]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context'] + ' ' + question_answer_dict_list_sorted[1]['context']
+        context = question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[3]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context'] + ' ' + question_answer_dict_list_sorted[1]['context']
+        
+        
+        # Change top_para into a dict for easier access
+        top_para = {
+            "question": q,
+            "context": question_answer_dict_list_sorted[2]['answer'] + ' ' + question_answer_dict_list_sorted[3]['answer'] + ' ' + question_answer_dict_list_sorted[0]['context'] + ' ' + question_answer_dict_list_sorted[1]['context']
+        }
+        
+        print('\ntop_para: \n{}\n'.format(top_para))
+
+        answerTime = time.time()
+        # Generate the inputs for the summary to use
+        inputs = self.bart_tokenizer([top_para['context']], max_length=1024, return_tensors='pt')
+        # Generate summary itself min_length and max_length specify summary length
+        summary_ids = self.bart_model.generate(inputs['input_ids'], num_beams=4, min_length = 30, max_length=100, early_stopping=True)
+        answer = ''
+        for g in summary_ids:
+            answer = answer + self.bart_tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+        print(answer)
+        tf.get_variable_scope().reuse_variables()
+        endAnswerTime = time.time()
+        total_answer_time = endAnswerTime - answerTime
+        print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
+        
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
+        
+        return answer, timeDict, context
+
+    # end def two_answer_two_context_concat(self, q)
