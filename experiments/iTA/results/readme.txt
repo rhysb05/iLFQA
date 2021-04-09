@@ -7,8 +7,8 @@ Results_rephrased:
 	QA_rephrase.xlsx.
 	
 	Confidence scoring Model:
-	LSTM
-	'*need link reference*'
+	allenai/document-qa
+	https://github.com/allenai/document-qa
 	
 	Text2Text model:
 	https://huggingface.co/yjernite/bart_eli5
@@ -21,8 +21,8 @@ Results:
 	QA.xlsx.
 	
 	Confidence scoring Model:
-	LSTM
-	'*need link reference*'
+	allenai/document-qa
+	https://github.com/allenai/document-qa
 	
 	Text2Text model:
 	https://huggingface.co/yjernite/bart_eli5
@@ -40,8 +40,8 @@ get_response.xlsx
 	answer, time_dict, context = res.get_response(d[0])
 	
 	Confidence scoring Model:
-	LSTM
-	'*need link reference*'
+	allenai/document-qa
+	https://github.com/allenai/document-qa
 	
 	Text2Text model:
 	https://huggingface.co/yjernite/bart_eli5

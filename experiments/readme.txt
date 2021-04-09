@@ -11,9 +11,25 @@ to perform the tests.
 All results of the experiments folders are reporducable with the source code contained in each model 
 folder.
 
-	roberta: Contains results of experiments that altered the length and semantic meaning of 
-	the context in order to evaluate performance. These methods were chosen heurisitcally during the
-	early days of using roberta to assign confidence scores. 
+Each model folder has three sub-folders:
+
+	source: The source code that will allow you to reproduce results in results folder
+
+	results: The results produced from running the code in source.
+
+	bert_scores: The result of using BERTScore to evaluate the raw results of the source code.
+	In order to score a raw results folder, follow the instructions contained in the BERTScore folder.
 	
-	distillbart, gpt2, T5: Each a text generation model that was tested as a possible candidate for iTA.
+BERTScore:
+
+	Contains the source code necessary to reproduce BERTScore results from each raw results file.
 	
+human_evaluations:
+
+	Contains human evaluated responses for two verison of iTA. The original implemntation as well as
+	the implementation that was finalized for the paper.
+	
+		get_respopnse_human_eval.xlsx: Human evaluated responses from original implementation of iTA.
+		Evaluation performed by paper authors.
+		
+		

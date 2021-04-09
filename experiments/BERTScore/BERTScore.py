@@ -147,15 +147,12 @@ def score_results(file_to_score):
 print("Preparations complete...")
 
 
-scorer = BERTScorer(lang="en", rescale_with_baseline=True)
+scorer = BERTScorer(lang="en", rescale_with_baseline=False)
 
 
 files_to_score = [
     
-    "/home/bdlabucdenver/data/five_answer_best_context_concat",
-    "/home/bdlabucdenver/data/four_best_context_concat",
-    "/home/bdlabucdenver/data/two_answer_best_context_concat",
-    "/home/bdlabucdenver/data/two_answer_two_context_concat"
+    "/home/bdlabucdenver/data/get_response"
     
 ]
 

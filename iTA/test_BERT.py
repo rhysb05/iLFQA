@@ -14,4 +14,4 @@ os.system("export TF_CPP_MIN_LOG_LEVEL=2")
 
 res = Loading_Model()
 data = input("Enter the question: ")
-print(res.get_response_BERT_two_answer_context(data))
+print(res.get_response(data))
