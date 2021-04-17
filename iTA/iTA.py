@@ -177,8 +177,8 @@ class Loading_Model():
         print('\nConcatenated answers:\n{}\n'.format(concatenated_answers))
         
         # We will pass the concatenated_answers to BART along with the context associated with the highest score
-        top_para = "question: " + q + " context: " + concatenated_answers + question_answer_dict_list_sorted[0]['context']
-        context = concatenated_answers + question_answer_dict_list_sorted[0]['context']
+        top_para = "question: " + q + " context: " + concatenated_answers + ' ' + question_answer_dict_list_sorted[0]['context']
+        context = concatenated_answers + ' ' + question_answer_dict_list_sorted[0]['context']
 
         top_file = open("/home/bdlabucdenver/Top_para.txt",'w')
         top_file.write(top_para)
