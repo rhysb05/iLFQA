@@ -4,7 +4,7 @@ from docqa.data_processing.text_utils import NltkAndPunctTokenizer, NltkPlusStop
 from docqa.data_processing.document_splitter import MergeParagraphs
 import re
 from os.path import isfile
-from iTA_BERT import Loading_Model
+from iLFQA import Loading_Model
 import time
 import pandas as pd
 import numpy as np
