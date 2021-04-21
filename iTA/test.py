@@ -6,7 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from nltk.translate import bleu_score
 from nltk.translate.bleu_score import SmoothingFunction
 import torch.nn as nn
-from iTA import Loading_Model
+from iLFQA import Loading_Model
 
 #os.system("export PYTHONPATH=${PYTHONPATH}:`pwd`")
 
