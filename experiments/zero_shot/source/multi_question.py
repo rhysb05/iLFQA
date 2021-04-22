@@ -4,7 +4,7 @@ from docqa.data_processing.text_utils import NltkAndPunctTokenizer, NltkPlusStop
 from docqa.data_processing.document_splitter import MergeParagraphs
 import re
 from os.path import isfile
-from iLFQA_BERT import Loading_Model
+from iLFQA import Loading_Model
 import time
 import pandas as pd
 import numpy as np
@@ -43,7 +43,7 @@ records_count = 0
 final_data = np.array([['Question', 'Answer', 'Context', 'G_answer', 'zero_shot_time', 'tf_idf_time', 'confidence_score_time', 'text_generation_time', 'Bleu', 'Perplex']])
 for d in np_data:
     start = time.time()
-    answer, time_dict, context = res.four_best_context_concat(d[0])
+    answer, time_dict, context = res.get_response(d[0])
     print(answer)
     end = time.time()
 
@@ -56,4 +56,4 @@ for d in np_data:
     records_count += 1
     print("Done {}\n".format(records_count))
 df = pd.DataFrame(final_data)
-df.to_excel("/home/bdlabucdenver/data/four_best_context_concat.xlsx", index = False, header= False, engine='xlsxwriter')
+df.to_excel("/home/bdlabucdenver/data/get_response.xlsx", index = False, header= False, engine='xlsxwriter')

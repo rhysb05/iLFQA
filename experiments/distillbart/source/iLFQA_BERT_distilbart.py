@@ -198,7 +198,7 @@ class Loading_Model():
         total_answer_time = endAnswerTime - answerTime
         print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
         
-        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": total_zero_shot_time}
         
         return answer, timeDict, context
 
@@ -306,7 +306,7 @@ class Loading_Model():
         total_answer_time = endAnswerTime - answerTime
         print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
         
-        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": total_zero_shot_time}
         
         return answer, timeDict, context
 
@@ -414,7 +414,7 @@ class Loading_Model():
         total_answer_time = endAnswerTime - answerTime
         print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
         
-        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": total_zero_shot_time}
         
         return answer, timeDict, context
 
@@ -521,7 +521,7 @@ class Loading_Model():
         total_answer_time = endAnswerTime - answerTime
         print('\nTotal time to generate answer: {}\n'.format(total_answer_time))
         
-        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": zero_shot_time}
+        timeDict = {"tf_idf": tf_idf_time, "confidence_scores": confidence_score_time, "answer": total_answer_time, "zero_shot_time": total_zero_shot_time}
         
         return answer, timeDict, context
 
