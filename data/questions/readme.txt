@@ -7,5 +7,5 @@ QA.xlsx:
 	
 QA_rephrase.xlsx:
 	
-	A set of paraphrased questions from QA.xlsx used to determine the semantic ability of iTA.
+	A set of paraphrased questions from QA.xlsx used to determine the semantic ability of iLFQA.
 	
