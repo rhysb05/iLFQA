@@ -1,5 +1,5 @@
 Each folder is named for the model that was used in the experiment. distillbart, gpt2, and T5 are text 
-generation models. iTA works by calculating the TF-IDF for each paragraph in the documents relevant to
+generation models. iLFQA works by calculating the TF-IDF for each paragraph in the documents relevant to
 a question. After five appropriate paragraphs are collected, they are each assigned confidence scores
 using roberta. 
 
