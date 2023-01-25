@@ -16,3 +16,6 @@ appropriate textual response for the question and returns it to the user.
 All source code for project and the source code used to produce individual results is available
 in this repository. The results produced by each iteration of development is available in the individual folders.
 
+Link to published article:
+https://dl.acm.org/doi/10.1145/3488560.3502190
+
